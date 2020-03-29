@@ -39,40 +39,44 @@ def generate_unigram(v_type, smooth_value):
         for twit in v0[lang]:
             for character in twit:
                 if character is not '*':
-                    previous = unigram.get(lang).get(character)
                     total_count += 1
 
-                    if previous is None:
-                        unigram[lang][character] = 1
+                    if unigram.get(lang).get(character) is None:
+                        unigram[lang][character] = {"count": 1, "probability": 0}
                     else:
-                        unigram[lang][character] = previous + 1
+                        unigram[lang][character]['count'] = unigram[lang][character]["count"] + 1
 
         if v_type == 0:
             for i in range(97, 123):
+                if 90 < i < 97:
+                    continue
+
                 denominator = (total_count + 26 * smooth_value)
 
                 if unigram[lang][chr(i)] is None:
-                    unigram[lang][chr(i)] = smooth_value / denominator
+                    unigram[lang][chr(i)] = {"count": smooth_value, "probability": smooth_value / denominator}
                 else:
-                    unigram[lang][chr(i)] = smooth_value + unigram[lang][chr(i)] / denominator
+                    unigram[lang][chr(i)]['probability'] = (smooth_value + unigram[lang][chr(i)]) / denominator
 
         elif v_type == 1:
             for i in range(65, 123):
                 denominator = (total_count + 52 * smooth_value)
 
                 if unigram[lang][chr(i)] is None:
-                    unigram[lang][chr(i)] = smooth_value / denominator
+                    unigram[lang][chr(i)] = {"count": smooth_value, "probability": smooth_value / denominator}
                 else:
-                    unigram[lang][chr(i)] = smooth_value + unigram[lang][chr(i)] / denominator
+                    unigram[lang][chr(i)]['probability'] = (smooth_value + unigram[lang][chr(i)]) / denominator
 
         elif v_type == 2:
             denominator = (total_count + 116766 * smooth_value)
 
-            unigram[lang]['not found'] = smooth_value / denominator
+            unigram[lang]['not found'] = {"count": smooth_value, "probability": smooth_value / denominator}
 
             for char in unigram[lang]:
-                unigram[lang][char] = unigram[lang][char] / denominator
+                unigram[lang][char]["probability"] = unigram[lang][char]['count'] / denominator
+
+    print(unigram)
 
 
-generate_v(parseFile("./training-tweets.txt"), 0)
-generate_unigram(0, 0.1)
+generate_v(parseFile("./training-tweets.txt"), 2)
+generate_unigram(2, 0.1)
