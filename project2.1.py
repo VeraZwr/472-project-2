@@ -2,6 +2,7 @@ import re
 
 v0 = {"eu": [], "ca": [], "gl": [], "es": [], "en": [], "pt": []}
 unigram = dict()
+bigram = dict()
 
 
 def parseFile(file):
@@ -48,24 +49,24 @@ def generate_unigram(v_type, smooth_value):
 
         if v_type == 0:
             for i in range(97, 123):
-                if 90 < i < 97:
-                    continue
 
                 denominator = (total_count + 26 * smooth_value)
 
                 if unigram[lang][chr(i)] is None:
                     unigram[lang][chr(i)] = {"count": smooth_value, "probability": smooth_value / denominator}
                 else:
-                    unigram[lang][chr(i)]['probability'] = (smooth_value + unigram[lang][chr(i)]) / denominator
+                    unigram[lang][chr(i)]['probability'] = (smooth_value + unigram[lang][chr(i)]["count"]) / denominator
 
         elif v_type == 1:
             for i in range(65, 123):
+                if 90 < i < 97:
+                    continue
                 denominator = (total_count + 52 * smooth_value)
 
                 if unigram[lang][chr(i)] is None:
                     unigram[lang][chr(i)] = {"count": smooth_value, "probability": smooth_value / denominator}
                 else:
-                    unigram[lang][chr(i)]['probability'] = (smooth_value + unigram[lang][chr(i)]) / denominator
+                    unigram[lang][chr(i)]['probability'] = (smooth_value + unigram[lang][chr(i)]["count"]) / denominator
 
         elif v_type == 2:
             denominator = (total_count + 116766 * smooth_value)
@@ -78,5 +79,48 @@ def generate_unigram(v_type, smooth_value):
     print(unigram)
 
 
-generate_v(parseFile("./training-tweets.txt"), 2)
-generate_unigram(2, 0.1)
+# 数一数某种语言的某种字母组合有多少个，比如bigram["en"]["ab"] = 5，就是在英语里，ab这个字母组合出现了5次。
+def bigram(v_type, smooth_value):
+    for lang in v0:
+        bigram[lang] = dict()
+        for tweet in v0[lang]:
+            for i in range(len(tweet) - 1):
+                if tweet[i] != '*' and tweet[i + 1] != '*':
+                    combination = str(tweet[i]) + str(tweet[i + 1])
+                    if bigram[lang][combination] is None:
+                        bigram[lang][combination] = {"count": 1, "probability": 0}
+                    else:
+                        bigram[lang][combination]["count"] = bigram[lang][combination]["count"] + 1
+        if v_type == 0:
+            for i in range(97, 123):
+                for j in range(97, 123):
+                    denominator = unigram[lang][chr(i)]["count"] + 26 * 26 * smooth_value
+                    combination = str(chr(i)) + str(chr(j))
+                    if bigram[lang][combination] is None:
+                        bigram[lang][combination] = {"count": smooth_value, "probability": smooth_value / denominator}
+                    else:
+                        bigram[lang][combination]['probability'] = (smooth_value + bigram[lang][combination]['count']) / denominator
+
+        if v_type == 1:
+            for i in range(65, 123):
+                if 90 < i < 97:
+                    continue
+                for j in range(65, 123):
+                    if 90 < j < 97:
+                        continue
+                    denominator = unigram[lang][chr(i)]["count"] + 52 * 52 * smooth_value
+                    combination = str(chr(i)) + str(chr(j))
+                    if bigram[lang][combination] is None:
+                        bigram[lang][combination] = {"count": smooth_value, "probability": smooth_value / denominator}
+                    else:
+                        bigram[lang][combination]['probability'] = (smooth_value + bigram[lang][combination]['count']) / denominator
+
+        if v_type == 2:
+            denominator = smooth_value
+            bigram[lang]['not found'] = {"count": smooth_value, "probability": smooth_value / denominator}
+            for combination in bigram[lang]:
+                bigram[lang][combination]["probability"] = (smooth_value + bigram[lang][combination]['count']) / denominator
+
+
+generate_v(parseFile("./training-tweets.txt"), 0)
+generate_unigram(0, 0.1)
