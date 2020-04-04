@@ -1,5 +1,6 @@
 import helper
 import unigram
+import numpy
 
 
 # 数一数某种语言的某种字母组合有多少个，比如bigram["en"]["ab"] = 5，就是在英语里，ab这个字母组合出现了5次。
@@ -17,6 +18,7 @@ def generate_bigram(vocabulary, v_type, smooth_value):
                         bigram[lang][combination] = {"count": 1, "probability": 0}
                     else:
                         bigram[lang][combination]["count"] = bigram[lang][combination]["count"] + 1
+
         if v_type == 0:
             for i in range(97, 123):
                 for j in range(97, 123):
@@ -48,8 +50,41 @@ def generate_bigram(vocabulary, v_type, smooth_value):
             bigram[lang]['not found'] = {"count": smooth_value, "probability": smooth_value / denominator}
 
             for combination in bigram[lang]:
-                bigram[lang][combination]["probability"] = (smooth_value + bigram[lang][combination][
-                    'count']) / unigram_map[lang][bigram[lang][combination][0]]["count"] + pow(helper.ALPHA_CONSTANT,
-                                                                                               2) * smooth_value
+                nominator = smooth_value + bigram[lang][combination]['count']
+                first_char = combination[0]
+                denominator = unigram_map[lang][first_char]["count"] + pow(helper.ALPHA_CONSTANT, 2) * smooth_value
+
+                bigram[lang][combination]["probability"] = nominator / denominator
 
     return bigram
+
+
+def generate_segments(tweet):
+    arr = []
+
+    for i in range(len(tweet) - 1):
+        if tweet[i] != '*' and tweet[i + 1] != '*':
+            arr.append(str(tweet[i]) + str(tweet[i + 1]))
+
+    return arr
+
+
+def make_guess(tweet, bigram):
+    arr = generate_segments(tweet['text'])
+
+    max = None
+    guess = ''
+
+    for lang in bigram:
+        temp = 0
+        for bi in arr:
+            if bigram[lang].get(bi) is None:
+                temp = temp + numpy.log(bigram[lang]['not found']['probability'])
+            else:
+                temp = temp + numpy.log(bigram[lang][bi]['probability'])
+
+        if max is None or temp > max:
+            max = temp
+            guess = lang
+
+    return {"id": tweet['id'], 'lang': tweet['lang'], 'guess': guess, 'score': max, 'isCorrect': tweet['lang'] == guess}

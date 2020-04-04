@@ -1,6 +1,8 @@
 import helper
+import numpy as ny
 
 unigram = dict()
+
 
 def generate_unigram(vocabulary, v_type, smooth_value):
     for lang in vocabulary:
@@ -48,3 +50,23 @@ def generate_unigram(vocabulary, v_type, smooth_value):
                 unigram[lang][char]["probability"] = unigram[lang][char]['count'] / denominator
 
     return unigram
+
+
+def make_guess(tweet, unigram):
+    max = None
+    guess = ''
+
+    for lang in unigram:
+        temp = 0
+        for char in tweet['text']:
+            if char != '*':
+                if unigram[lang].get(char) is None:
+                    temp = temp + ny.log(unigram[lang]['not found']['probability'])
+                else:
+                    temp = temp + ny.log(unigram[lang][char]['probability'])
+
+        if max is None or temp > max:
+            max = temp
+            guess = lang
+
+    return {"id": tweet['id'], 'lang': tweet['lang'], 'guess': guess, 'score': max, 'isCorrect': tweet['lang'] == guess}
