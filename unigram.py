@@ -25,7 +25,7 @@ def generate_unigram(vocabulary, v_type, smooth_value):
 
                 denominator = (total_count + 26 * smooth_value)
 
-                if unigram[lang][chr(i)] is None:
+                if unigram[lang].get(chr(i)) is None:
                     unigram[lang][chr(i)] = {"count": smooth_value, "probability": smooth_value / denominator}
                 else:
                     unigram[lang][chr(i)]['probability'] = (smooth_value + unigram[lang][chr(i)]["count"]) / denominator
@@ -36,7 +36,7 @@ def generate_unigram(vocabulary, v_type, smooth_value):
                     continue
                 denominator = (total_count + 52 * smooth_value)
 
-                if unigram[lang][chr(i)] is None:
+                if unigram[lang].get(chr(i)) is None:
                     unigram[lang][chr(i)] = {"count": smooth_value, "probability": smooth_value / denominator}
                 else:
                     unigram[lang][chr(i)]['probability'] = (smooth_value + unigram[lang][chr(i)]["count"]) / denominator

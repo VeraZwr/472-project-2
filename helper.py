@@ -1,5 +1,5 @@
 import re
-
+import remove_noise
 ALPHA_CONSTANT = 116766
 
 
@@ -9,6 +9,7 @@ def clean(v, path):
     regex = re.compile('[^a-zA-Z]')
     test_file = open(path, "r", encoding="utf-8")
     text = test_file.read()
+    text = remove_noise.remove_noise(text)
     text_lines = text.splitlines()
     for line in text_lines:
         split_content = line.split("\t")
