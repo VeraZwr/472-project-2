@@ -87,4 +87,4 @@ def make_guess(tweet, bigram):
             max = temp
             guess = lang
 
-    return {"id": tweet['id'], 'lang': tweet['lang'], 'guess': guess, 'score': max, 'isCorrect': tweet['lang'] == guess}
+    return {"id": tweet['id'], 'lang': tweet['lang'],'score': max,  'guess': guess, 'isCorrect': tweet['lang'] == guess}
