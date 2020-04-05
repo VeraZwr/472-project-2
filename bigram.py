@@ -3,7 +3,6 @@ import unigram
 import numpy
 
 
-# 数一数某种语言的某种字母组合有多少个，比如bigram["en"]["ab"] = 5，就是在英语里，ab这个字母组合出现了5次。
 def generate_bigram(vocabulary, v_type, smooth_value):
     bigram = dict()
     unigram_map = unigram.generate_unigram(vocabulary, v_type, smooth_value)
