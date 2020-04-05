@@ -34,6 +34,10 @@ def generate_v(text, v_type):
 
 
 def run_model(training_path, test_path, v_type, model_type, smooth_value):
+    trace_file = open("trace_" + str(v_type) + "_" + str(model_type) + "_" + str(smooth_value) + ".txt", "w", encoding ="utf-8")
+    eval_file = open("eval_" + str(v_type) + "_" + str(model_type) + "_" + str(smooth_value) + ".txt", "w",
+                      encoding="utf-8")
+    isCorrect = ""
     generate_v(parseFile(training_path), v_type)
 
     tweets = helper.clean(v_type, test_path)
@@ -41,7 +45,7 @@ def run_model(training_path, test_path, v_type, model_type, smooth_value):
     total = 0
     correct = 0
 
-    if model_type == 'unigram':
+    if model_type == 1:
 
         unigramMap = unigram.generate_unigram(v0, v_type, smooth_value)
 
@@ -51,7 +55,7 @@ def run_model(training_path, test_path, v_type, model_type, smooth_value):
             if result['isCorrect']:
                 correct += 1
 
-    elif model_type == 'bigram':
+    elif model_type == 2:
         bigramMap = bigram.generate_bigram(v0, v_type, smooth_value)
 
         for tweet in tweets:
@@ -60,7 +64,8 @@ def run_model(training_path, test_path, v_type, model_type, smooth_value):
             if result['isCorrect']:
                 correct += 1
 
-    elif model_type == 'trigram':
+
+    elif model_type == 3:
         trigramMap = trigram.generate_trigram(v0, v_type, smooth_value)
 
         for tweet in tweets:
@@ -73,4 +78,4 @@ def run_model(training_path, test_path, v_type, model_type, smooth_value):
     print(correct / total)
 
 
-run_model("./training-tweets.txt", "./test-tweets-given.txt", 2, 'trigram', 0.00000000000001)
+run_model("./training-tweets.txt", "./test-tweets-given.txt", 2, 3, 0.00000000000001)
