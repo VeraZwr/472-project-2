@@ -86,17 +86,18 @@ def run_model(training_path, test_path, v_type, model_type, smooth_value):
 
         for tweet in tweets:
             result = byom.make_guess(tweet, bigramMap, trigramMap, emojis_count)
-
+            generate_trace_file.genetate_trace_file(trace_file, result)
+            generate_trace_file.count_result(result)
             total += 1
             if result['isCorrect']:
                 correct += 1
     trace_file.close()
     accuracy = correct / total
     generate_trace_file.generate_eval(v_type, model_type, smooth_value, accuracy, total)
-
+    test = generate_trace_file.c
     print('total: ', total)
     print('accuracy: ', accuracy)
     print(correct / total)
 
 
-run_model("./training-tweets.txt", "./test-tweets-given.txt", 1, 4, 0.00000000000001)
+run_model("./training-tweets.txt", "./test-tweets-given.txt", 2, 1, 0.3)
